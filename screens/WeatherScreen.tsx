@@ -1,36 +1,9 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import axios from 'axios';
-import { Alert, Image, ScrollView, Text, TextInput, View, StyleSheet } from 'react-native';
-import CustomButton from '../components/CustomButton.tsx';
-
-const API_KEY = 'aed43d01ba699a7e61ce578cb448eb65';
-
-interface WeatherItem {
-    dt: number;
-    main: {
-        temp: number;
-        feels_like: number;
-        temp_min: number;
-        temp_max: number;
-    };
-    dt_txt: string;
-    weather: {
-        description: string;
-        icon: string;
-    }[];
-}
-
-interface Coordinates {
-    lon: number;
-    lat: number;
-}
-
-interface WeatherData {
-    city: {
-        name: string;
-    };
-    list: WeatherItem[];
-}
+import React, {useCallback, useEffect, useState} from 'react';
+import { Alert, Image, ScrollView, Text, TextInput, View} from 'react-native';
+import CustomButton from '../components/CustomButton';
+import { Coordinates, WeatherData } from '../type/weatherTypes';
+import {styles} from '../styles/weatherStyles';
+import {getCoordinates, fetchWeatherData} from '../service/weatherService.tsx';
 
 const WeatherScreen = () => {
     const [coordinates, setCoordinates] = useState<Coordinates | null>(null);
@@ -45,59 +18,35 @@ const WeatherScreen = () => {
         }
     };
 
-    const getCoordinates = useCallback(async () => {
+    const loadCoordinates = useCallback(async () => {
         try {
-            const response = await axios.get(
-                'https://api.openweathermap.org/geo/1.0/direct',
-                {
-                    params: {
-                        q: city,
-                        appid: API_KEY,
-                        limit: 1,
-                    },
-                }
-            );
-            if (response.data.length > 0) {
-                const { lat, lon } = response.data[0];
-                setCoordinates({ lat, lon });
-            } else {
-                Alert.alert('Error', 'City not found');
-            }
+            const coords = await getCoordinates(city);
+            setCoordinates(coords);
         } catch (error) {
             console.error('Error fetching coordinates:', error);
-            Alert.alert('Error', 'Failed to fetch coordinates');
+            Alert.alert('Error fetching coordinates', 'Please check the city name and try again.');
         }
     }, [city]);
 
-    const fetchWeatherData = useCallback(async () => {
-        if (!coordinates) {return;}
-        try {
-            const response = await axios.get(
-                'https://api.openweathermap.org/data/2.5/forecast',
-                {
-                    params: {
-                        lat: coordinates.lat,
-                        lon: coordinates.lon,
-                        appid: API_KEY,
-                        units: 'metric',
-                    },
-                }
-            );
-            setWeatherData(response.data);
-        } catch (error: any) {
-            console.error('Error fetching 5-day weather data:', error.response?.data || error.message);
+    const loadWeatherData = useCallback( async () => {
+        try{
+            const data = await fetchWeatherData(coordinates as Coordinates);
+            setWeatherData(data);
+        } catch (error) {
+            console.error('Error fetching weather data:', error);
+            Alert.alert('Error fetching weather data', 'Please try again later.');
         }
-    }, [coordinates]);
+    },[coordinates]);
 
     useEffect(() => {
-        getCoordinates();
-    }, [city, getCoordinates]);
+        loadCoordinates().then(() => {});
+    }, [city, loadCoordinates]);
 
     useEffect(() => {
         if (coordinates) {
-            fetchWeatherData();
+            loadWeatherData().then(() => {});
         }
-    }, [coordinates, fetchWeatherData]);
+    }, [coordinates, loadWeatherData]);
 
     const renderWeatherData = () => {
         if (!weatherData) {
@@ -161,103 +110,5 @@ const WeatherScreen = () => {
     );
 };
 
-const styles = StyleSheet.create({
-    container: {
-        flexGrow: 1,
-        padding: 20,
-        backgroundColor: '#f5f5f5',
-    },
-    searchContainer: {
-        marginBottom: 20,
-    },
-    buttonContainer:{
-        alignItems:'center',
-    },
-    input: {
-        height: 50,
-        borderColor: '#ddd',
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 15,
-        marginBottom: 10,
-        backgroundColor: '#fff',
-        fontSize: 16,
-    },
-    weatherContainer: {
-        marginTop: 10,
-    },
-    cityName: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        textAlign: 'center',
-        marginBottom: 20,
-        color: '#333',
-    },
-    weatherCard: {
-        backgroundColor: '#fff',
-        borderRadius: 10,
-        padding: 15,
-        marginBottom: 15,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
-    },
-    weatherHeader: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 10,
-    },
-    dateText: {
-        fontSize: 16,
-        fontWeight: '600',
-        color: '#333',
-    },
-    weatherIconContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-    },
-    weatherIcon: {
-        width: 50,
-        height: 50,
-        marginRight: 10,
-    },
-    descriptionText: {
-        fontSize: 14,
-        color: '#666',
-        textTransform: 'capitalize',
-    },
-    weatherDetails: {
-        marginTop: 10,
-    },
-    tempText: {
-        fontSize: 16,
-        color: '#444',
-        marginBottom: 5,
-    },
-    feelsLikeText: {
-        fontSize: 14,
-        color: '#666',
-        marginBottom: 5,
-    },
-    minMaxText: {
-        fontSize: 14,
-        color: '#666',
-    },
-    loadingText: {
-        fontSize: 16,
-        textAlign: 'center',
-        marginTop: 20,
-        color: '#666',
-    },
-    noDataText: {
-        fontSize: 16,
-        textAlign: 'center',
-        marginTop: 20,
-        color: '#f44336',
-    },
-});
 
 export default WeatherScreen;

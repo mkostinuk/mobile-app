@@ -1,5 +1,5 @@
 import {View} from 'react-native';
-import * as React from 'react';
+import React from 'react';
 import CustomButton from '../components/CustomButton.tsx';
 
 const HomeScreen = ({ navigation }: any) => {

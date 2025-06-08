@@ -1,5 +1,5 @@
 import {Text, View} from "react-native";
-import * as React from "react";
+import React from 'react';
 
 const AccountScreen = () => {
     return (

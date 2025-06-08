@@ -1,8 +1,9 @@
+import React from 'react';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import OrdersScreen from '../screens/OrdersScreen.tsx';
 import ClientsScreen from '../screens/ClientsScreen.tsx';
-import ProfessionalScreen from '../screens/ProfessionalScreen.tsx';
-import OrderDetailsScreen from '../screens/OrderDetailsScreen.tsx';
+import ProfessionalScreen from '../screens/ProfessionalScreen';
+import OrderDetailsScreen from '../screens/OrderDetailsScreen';
 
 const StackProfessional = createNativeStackNavigator();
 

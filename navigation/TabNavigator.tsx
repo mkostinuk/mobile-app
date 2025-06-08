@@ -1,7 +1,7 @@
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import * as React from "react";
+import React from 'react';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-import StackHomeScreen from './StackHomeScreen.tsx';
+import HomeStackScreen from './HomeStackScreen.tsx';
 import StackProfessionalScreen from './StackProfessionalScreen.tsx';
 import WeatherScreen from '../screens/WeatherScreen.tsx';
 
@@ -29,7 +29,7 @@ function TabNavigator() {
                 },
             })}
         >
-            <Tab.Screen name="Home" component={StackHomeScreen} />
+            <Tab.Screen name="Home" component={HomeStackScreen} />
             <Tab.Screen name="Professional" component={StackProfessionalScreen} />
             <Tab.Screen name="Weather" component={WeatherScreen} options={{headerShown:true}}/>
         </Tab.Navigator>
